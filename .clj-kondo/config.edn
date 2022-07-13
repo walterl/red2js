@@ -1,0 +1,1 @@
+{:hooks {:analyze-call {walterl.red2js.loopr/loopr hooks.loopr/loopr}}}
