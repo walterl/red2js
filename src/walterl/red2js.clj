@@ -36,11 +36,29 @@
        (remove nil?)
        (str/join "\n\n")))
 
+(defn- convert-tab-nodes
+  [{tab-node-id :id, :as tab-node} nodes]
+  (convert-nodes (into [tab-node]
+                       (filter #(= tab-node-id (:z %)) nodes))))
+
+(defn- untabbed-nodes
+  [nodes]
+  (let [tab-nodes (n/type-nodes "tab" nodes)
+        tab-node-ids (set (map :id tab-nodes))
+        tabbed-nodes (filter #(or (tab-node-ids (:id %)) (tab-node-ids (:z %))) nodes)
+        tabbed-node-ids (set (map :id tabbed-nodes))]
+    (remove (comp tabbed-node-ids :id) nodes)))
+
+(defn- convert-flows
+  [nodes]
+  (str/join "\n\n"
+            (into [(convert-nodes (untabbed-nodes nodes))]
+                  (map #(convert-tab-nodes % nodes) (n/type-nodes "tab" nodes)))))
+
 (defn convert-flows-file
   "Callable entry point to the application."
   [{:keys [filename]}]
-  (-> (load-nodes filename)
-      (convert-nodes)))
+  (convert-flows (load-nodes filename)))
 
 (defn -main
   "Convert flows.json to JavaScript pseudo code."
