@@ -188,6 +188,104 @@
   (println (n/node->js noop-node flows))
   ,)
 
+;;; Node type: objectid
+
+(defmethod n/js-fn-name "objectid"
+  [{:keys [id] :as _node}]
+  (js/identifier ["objectid" id]))
+
+(defn- objectid-body
+  [{prop :selectedProperty, :as _node}]
+  (u/join-lines
+    [(format "// Will convert all if %s is an array" prop)
+     (format "let value = bson.ObjectId(RED.util.getMessageProperty(msg, %s));"
+             (js/format-value prop))
+     (format "RED.util.setMessageProperty(msg, %s, value, true);" prop)
+     "return msg;"]))
+
+(defmethod n/node->js "objectid"
+  [node nodes]
+  (js/fn-src {:name (n/js-fn-name node)
+              :body (js/result-passing-body
+                      (objectid-body node)
+                      node
+                      nodes)}))
+
+(comment
+  (def objectid-node (first (n/type-nodes "objectid" flows)))
+  (println (n/node->js objectid-node flows))
+  ,)
+
+;;; Node type: mongodb
+
+(defmethod n/js-fn-name "mongodb"
+  [{:keys [id] :as _node}]
+  (js/identifier ["mongodb" id]))
+
+(defmethod n/node->js "mongodb"
+  [node _nodes]
+  (format "const %s = mongodb.connect(%s);"
+          (n/js-fn-name node)
+          (n/config-json node)))
+
+(comment
+  (def mongodb-node (first (n/type-nodes "mongodb" flows)))
+  (println (n/node->js mongodb-node flows))
+  ,)
+
+;; Node type: mongodb in
+
+(defmethod n/js-fn-name "mongodb in"
+  [{:keys [id] :as _node}]
+  (js/identifier ["mongodb_in" id]))
+
+(defn- mongodb-in-body
+  [{:keys [collection mongodb operation] :as _node} nodes]
+  (format "return %s.%s.%s(msg);"
+          (n/js-fn-name (n/node-with-id mongodb nodes))
+          collection
+          operation))
+
+(defmethod n/node->js "mongodb in"
+  [node nodes]
+  (js/fn-src {:name (n/js-fn-name node)
+              :body (js/result-passing-body
+                      (mongodb-in-body node nodes)
+                      node
+                      nodes)}))
+
+(comment
+  (def mongodb-in-node (first (n/type-nodes "mongodb in" flows)))
+  (println (n/node->js mongodb-in-node flows))
+  ,)
+
+;;; Node type: mongodb out
+
+(defmethod n/js-fn-name "mongodb out"
+  [{:keys [collection id name operation] :as _node}]
+  (js/identifier ["mongodb_out" operation (or (not-empty name) collection) id]))
+
+(defn- mongodb-out-body
+  [{:keys [collection mongodb operation payonly] :as _node} nodes]
+  (format "return %s.%s.%s(%s);"
+          (n/js-fn-name (n/node-with-id mongodb nodes))
+          collection
+          operation
+          (if payonly "msg.payload" "msg")))
+
+(defmethod n/node->js "mongodb out"
+  [node nodes]
+  (js/fn-src {:name (n/js-fn-name node)
+              :body (js/result-passing-body
+                      (mongodb-out-body node nodes)
+                      node
+                      nodes)}))
+
+(comment
+  (def mongodb-out-node (first (n/type-nodes "mongodb out" flows)))
+  (println (n/node->js mongodb-out-node flows))
+  ,)
+
 ;;; Node type: status
 
 (defmethod n/js-fn-name "status"
