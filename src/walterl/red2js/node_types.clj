@@ -168,6 +168,41 @@
   (println (n/node->js noop-node flows))
   ,)
 
+;;; Node type: status
+
+(defmethod n/js-fn-name "status"
+  [{:keys [id] :as _node}]
+  (js/identifier ["status" id]))
+
+(defn- status-selected-nodes
+  [scope]
+  (if scope
+    (format "[%s].map(RED.nodes.getNode);" (js/format-values scope))
+    "RED.nodes.getNodeList();"))
+
+(defn- status-body
+  [{:keys [scope] :as node} nodes]
+  (let [out-fn-name (n/js-fn-name (first (n/output-nodes node nodes)))]
+    (u/join-lines
+      [(str "const selected = " (status-selected-nodes scope))
+       "for (const n of selected) {"
+       (js/indent (format "%s(n);" out-fn-name))
+       "}"])))
+
+(defmethod n/node->js "status"
+  [node nodes]
+  (js/fn-src {:name (n/js-fn-name node)
+              :body (status-body node nodes)}))
+
+(comment
+  (def status-node (first (n/type-nodes "status" flows)))
+  (status-body status-node flows)
+
+  (println (n/node->js status-node flows))
+  (let [status-node (assoc status-node :scope (map :id (vec (take 3 flows))))]
+    (println (n/node->js status-node flows)))
+  ,)
+
 ;;; Node type: switch
 
 (defmethod n/js-fn-name "switch"
