@@ -1,6 +1,5 @@
 (ns walterl.red2js.node-types
   (:require [clojure.string :as str]
-            [cheshire.core :as json]
             [walterl.red2js.helpers :as h]
             [walterl.red2js.js :as js]
             [walterl.red2js.nodes :as n]
@@ -93,19 +92,15 @@
   [{:keys [id] :as _node}]
   (js/identifier ["amqp_broker" id]))
 
-(defn- amqp-broker-args
-  [node]
-  (-> (dissoc node :id :type)
-      (json/generate-string)))
-
 (defmethod n/node->js "amqp-broker"
   [node _nodes]
   (format "const %s = amqp_broker(%s);"
           (n/js-fn-name node)
-          (amqp-broker-args node)))
+          (n/config-json node)))
 
 (comment
-  (amqp-broker-args (first (n/type-nodes "amqp-broker" flows)))
+  (n/type-nodes "amqp-broker" flows)
+  (n/config-json (first (n/type-nodes "amqp-broker" flows)))
   (println (n/node->js (first (n/type-nodes "amqp-broker" flows))
                        flows))
   ,)

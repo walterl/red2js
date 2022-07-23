@@ -1,7 +1,16 @@
 (ns walterl.red2js.nodes
   (:require [clojure.set :as set]
+            [cheshire.core :as json]
             [walterl.red2js.nodes :as n]
             [walterl.red2js.loopr :refer [loopr]]))
+
+;;; Utilities
+
+(defn config-json
+  "Returns node config as a JSON string; all fields except `:id`, `:name` and `:type`."
+  [node]
+  (-> (dissoc node :id :name :type)
+      (json/generate-string)))
 
 ;;; Multi-methods
 
