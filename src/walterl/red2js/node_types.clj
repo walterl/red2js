@@ -319,6 +319,12 @@
   (h/val-freqs (n/type-nodes "inject" flows))
   ,)
 
+;;; Node type: tab
+
+(defmethod n/node->js "tab"
+  [{:keys [label]} _nodes]
+  (str "/// Tab: " label))
+
 ;;; Node type: debug
 
 (defmethod n/js-fn-name "debug"
