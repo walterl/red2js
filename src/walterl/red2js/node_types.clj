@@ -27,6 +27,31 @@
        (map (juxt :id :wires)))
   ,)
 
+;;; Node type: http in
+
+(defmethod n/js-fn-name "http in"
+  [{:keys [id method url] :as _node}]
+  (js/identifier ["http_in" method url id]))
+
+(defn- http-in-body
+  [{:keys [method url] :as _node}]
+  (u/join-lines
+    [(format "// %s %s" (str/upper-case method) url)
+     "return msg.request;"]))
+
+(defmethod n/node->js "http in"
+  [node nodes]
+  (js/fn-src {:name (n/js-fn-name node)
+              :body (js/result-passing-body
+                      (http-in-body node)
+                      node
+                      nodes)}))
+
+(comment
+  (def http-in-node (first (n/type-nodes "http in" flows)))
+  (println (n/node->js http-in-node flows))
+  ,)
+
 ;;; Node type: http request
 
 (defmethod n/js-fn-name "http request"
