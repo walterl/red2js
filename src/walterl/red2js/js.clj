@@ -27,12 +27,18 @@
 
 (def ^:private indent-level "    ")
 
+(defn- indent-line
+  [s]
+  (if (not-empty s)
+    (str indent-level s)
+    ""))
+
 (defn indent
   "Indent lines of `s` by one `indent-level`."
   [s]
   (when s
     (->> (str/split-lines s)
-         (map #(str indent-level %))
+         (map indent-line)
          (u/join-lines))))
 
 (defn format-value
@@ -51,7 +57,7 @@
 
 (defn fn-src
   "Generate JavaScript source for function with `name` and `body`, and taking `params`.
-  
+
       => (fn-src {:name \"foo\", :params ['x], :body \"return x+1;\"})
       \"function foo(x) {\n    return x+1;\n}\"
   "
