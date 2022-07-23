@@ -31,11 +31,10 @@
 
 (defmethod n/js-fn-name "http request"
   [{:keys [id method name ret] :as _node}]
-  (if (= "use" method)
-    (if (= "obj" ret)
-      "http_request_json"
-      "http_request")
-    (js/identifier ["http_request" method name id])))
+  (let [base-name (if (= "obj" ret)
+                    "http_request_json"
+                    "http_request")]
+    (js/identifier [base-name method name id])))
 
 (defn- http-request-body
   [{:keys [method ret url] :as _node}]
