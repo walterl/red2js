@@ -8,9 +8,11 @@
 
 (defn config-json
   "Returns node config as a JSON string; all fields except `:id`, `:name` and `:type`."
-  [node]
-  (-> (dissoc node :id :name :type)
-      (json/generate-string)))
+  ([node]
+   (config-json node nil))
+  ([node opts]
+   (-> (dissoc node :id :name :type)
+       (json/generate-string opts))))
 
 ;;; Multi-methods
 
