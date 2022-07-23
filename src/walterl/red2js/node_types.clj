@@ -286,6 +286,53 @@
   (println (n/node->js mongodb-out-node flows))
   ,)
 
+;;; Node type: mongodb-config
+
+(defmethod n/js-fn-name "mongodb-config"
+  [{:keys [id] :as _node}]
+  (js/identifier ["mongodb_config" id]))
+
+(defmethod n/node->js "mongodb-config"
+  [node _nodes]
+  (format "const %s = mongodb_config.connect(%s);"
+          (n/js-fn-name node)
+          (n/config-json node {:pretty true})))
+
+(comment
+  (def mongodb-config-node (first (n/type-nodes "mongodb-config" flows)))
+  (println (n/node->js mongodb-config-node flows))
+  ,)
+
+;;; Node type: mongodb-collection
+
+(defmethod n/js-fn-name "mongodb-collection"
+  [{:keys [collection id method] :as _node}]
+  (js/identifier ["mongodb_collection" method collection id]))
+
+(defn- mongodb-collection-body
+  [{:keys [collection config method] :as _node} nodes]
+  (u/join-lines
+    [(format "const coll = %s;" (if (not-empty collection)
+                                  (js/format-value collection)
+                                  "msg.collection"))
+     (format "return %s[coll].%s(msg);"
+             (n/js-fn-name (n/node-with-id config nodes))
+             method)]))
+
+(defmethod n/node->js "mongodb-collection"
+  [node nodes]
+  (js/fn-src {:name (n/js-fn-name node)
+              :body (js/result-passing-body
+                      (mongodb-collection-body node nodes)
+                      node
+                      nodes)}))
+
+(comment
+  (map (juxt :name :collection) (n/type-nodes "mongodb-collection" flows))
+  (def mongo-coll-node (first (n/type-nodes "mongodb-collection" flows)))
+  (println (n/node->js mongo-coll-node flows))
+  ,)
+
 ;;; Node type: status
 
 (defmethod n/js-fn-name "status"
