@@ -21,6 +21,7 @@
   "Creates valid JavaScript identifier from non-empty `parts`."
   [parts]
   (->> parts
+       (map str)
        (filter not-empty)
        (map safe-for-identifier)
        (str/join "__")))
