@@ -86,6 +86,29 @@
        (map n/js-fn-name))
   ,)
 
+;;; Node type: http response
+
+(defmethod n/js-fn-name "http response"
+  [{:keys [id name] :as node}]
+  (js/identifier ["http_response" name (:statusCode node) id]))
+
+(defn- http-response-body
+  [node]
+  (u/join-lines
+    ["// https://github.com/node-red/node-red/blob/235690064fe25bba1f5442b59c3cfc3993cb6dc3/packages/node_modules/%40node-red/nodes/core/network/21-httpin.js#L347="
+     (format "msg.res._res.status(%s).send(msg.payload);"
+             (or (not-empty (str (:statusCode node))) "msg.statusCode || 200"))]))
+
+(defmethod n/node->js "http response"
+  [node _nodes]
+  (js/fn-src {:name (n/js-fn-name node)
+              :body (http-response-body node)}))
+
+(comment
+  (def http-response-node (first (n/type-nodes "http response" flows)))
+  (println (n/node->js http-response-node flows))
+  ,)
+
 ;;; Node type: amqp-broker
 
 (defmethod n/js-fn-name "amqp-broker"
@@ -434,6 +457,30 @@
        #_(filter #(= 2 (:outputs %)))
        )
   ,)
+
+;;; Node type: template
+
+(defmethod n/js-fn-name "template"
+  [{:keys [id] :as _node}]
+  (js/identifier ["template" id]))
+
+(defn- template-body
+  [node]
+  )
+
+(defmethod n/node->js "template"
+  [node nodes]
+  (js/fn-src {:name (n/js-fn-name node)
+              :body (js/result-passing-body
+                      (template-body node)
+                      node
+                      nodes)}))
+
+(comment
+  (def template-node (first (n/type-nodes "template" flows)))
+  (println (n/node->js template-node flows))
+  ,)
+
 
 ;;; Node type: inject
 
