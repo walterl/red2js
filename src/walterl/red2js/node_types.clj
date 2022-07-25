@@ -461,12 +461,39 @@
 ;;; Node type: template
 
 (defmethod n/js-fn-name "template"
-  [{:keys [id] :as _node}]
-  (js/identifier ["template" id]))
+  [{:keys [id name] :as _node}]
+  (js/identifier ["template" name id]))
+
+(defn- rendered-template
+  [{:keys [syntax template] :as _node}]
+  (if (= "mustache" syntax)
+    (u/join-lines
+      [(format  "require('mustache').render(%s, {" (js/format-value template))
+       (js/indent "flow,")
+       (js/indent "global,")
+       (js/indent "payload: msg.payload,")
+       "});"])
+    (js/format-value template)))
+
+(defn- formatted-template-output
+  [output-name fmt]
+  (cond
+    (= "json" fmt) (format "%s = JSON.parse(%s);" output-name output-name)
+    (= "yaml" fmt) (format "%s = require('js-yaml').load(%s);"  output-name output-name)))
+
+(defn- template-output-prop
+  [{:keys [field], field-type :fieldType}]
+  (str/join \. [field-type field]))
 
 (defn- template-body
-  [node]
-  )
+  [{:keys [output template] :as node}]
+  (u/join-lines
+    ["// Template:"
+     (js/comment-lines template)
+     (format "let output = %s;" (rendered-template node))
+     (formatted-template-output "output" output)
+     (format "%s = output;" (template-output-prop node))
+     "return msg;"]))
 
 (defmethod n/node->js "template"
   [node nodes]
@@ -478,6 +505,8 @@
 
 (comment
   (def template-node (first (n/type-nodes "template" flows)))
+  (def template-node (cheshire.core/parse-string "{\n\"id\": \"85adcedf.a6738\",\n    \"type\": \"template\",\n    \"z\": \"58e157c1.6f5268\",\n    \"name\": \"xxx\",\n    \"field\": \"payload\",\n    \"fieldType\": \"global\",\n    \"format\": \"handlebars\",\n    \"syntax\": \"mustache\",\n    \"template\": \"This is the payload: {{payload}} !\",\n    \"output\": \"json\",\n    \"x\": 1380,\n    \"y\": 400,\n    \"wires\": [\n        []\n    ]\n}"
+                                                 true))
   (println (n/node->js template-node flows))
   ,)
 

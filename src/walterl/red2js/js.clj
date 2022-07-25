@@ -3,6 +3,11 @@
             [walterl.red2js.nodes :as n]
             [walterl.red2js.util :as u]))
 
+(defn comment-lines
+  "Wraps `s` in a block comment: `/* <s> */`."
+  [s]
+  (u/join-lines ["/*" s " */"]))
+
 (defn pair->comment-line
   "JavaScript comment with formatted key-value pair."
   [[k v]]
