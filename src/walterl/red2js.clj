@@ -25,14 +25,14 @@
 (defn- annotate-node
   [node nodes]
   (assoc node
-         :js (n/node->js node nodes)
-         :js-comment (metadata-js-comment node)))
+         ::js (n/node->js node nodes)
+         ::js-comment (metadata-js-comment node)))
 
 (defn- convert-nodes
   [nodes]
   (->> nodes
        (map #(annotate-node % nodes))
-       (map :js)
+       (map ::js)
        (remove nil?)
        (str/join "\n\n")))
 
@@ -89,7 +89,7 @@
        (n/type-nodes "switch")
        (take-last 2)
        (map #(annotate-node % flows))
-       (map :js)
+       (map ::js)
        (str/join "\n\n")
        (println))
 

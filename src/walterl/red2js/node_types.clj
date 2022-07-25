@@ -13,8 +13,8 @@
 
 (defmethod n/node->js "function"
   [{:keys [func] :as node} nodes]
-  (js/fn-src {:name (n/js-fn-name node)
-              :body (js/result-passing-body func node nodes)}))
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (js/result-passing-body func node nodes)}))
 
 (comment
   (def flows walterl.red2js/flows)
@@ -40,11 +40,11 @@
 
 (defmethod n/node->js "http in"
   [node nodes]
-  (js/fn-src {:name (n/js-fn-name node)
-              :body (js/result-passing-body
-                      (http-in-body node)
-                      node
-                      nodes)}))
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (js/result-passing-body
+                          (http-in-body node)
+                          node
+                          nodes)}))
 
 (comment
   (def http-in-node (first (n/type-nodes "http in" flows)))
@@ -69,11 +69,11 @@
 
 (defmethod n/node->js "http request"
   [node nodes]
-  (js/fn-src {:name (n/js-fn-name node)
-              :body (js/result-passing-body
-                      (http-request-body node)
-                      node
-                      nodes)}))
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (js/result-passing-body
+                          (http-request-body node)
+                          node
+                          nodes)}))
 
 (comment
   (def req-node (first (n/type-nodes "http request" flows)))
@@ -101,8 +101,8 @@
 
 (defmethod n/node->js "http response"
   [node _nodes]
-  (js/fn-src {:name (n/js-fn-name node)
-              :body (http-response-body node)}))
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (http-response-body node)}))
 
 (comment
   (def http-response-node (first (n/type-nodes "http response" flows)))
@@ -149,11 +149,11 @@
 
 (defmethod n/node->js "amqp-in"
   [node nodes]
-  (js/fn-src {:name (n/js-fn-name node)
-              :body (js/result-passing-body
-                      (amqp-in-body node nodes)
-                      node
-                      nodes)}))
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (js/result-passing-body
+                          (amqp-in-body node nodes)
+                          node
+                          nodes)}))
 
 (comment
   (println (n/node->js (n/node-with-id "a8c126e4.90de28" flows) flows))
@@ -181,8 +181,8 @@
 
 (defmethod n/node->js "amqp-out"
   [node nodes]
-  (js/fn-src {:name (n/js-fn-name node)
-              :body (amqp-out-body node nodes)}))
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (amqp-out-body node nodes)}))
 
 (comment
   (def ao-node (first (n/type-nodes "amqp-out" flows)))
@@ -202,8 +202,8 @@
 
 (defmethod n/node->js "no-op"
   [node nodes]
-  (js/fn-src {:name (n/js-fn-name node)
-              :body (noop-body node nodes)}))
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (noop-body node nodes)}))
 
 (comment
   (def noop-node (first (n/type-nodes "no-op" flows)))
@@ -228,11 +228,11 @@
 
 (defmethod n/node->js "objectid"
   [node nodes]
-  (js/fn-src {:name (n/js-fn-name node)
-              :body (js/result-passing-body
-                      (objectid-body node)
-                      node
-                      nodes)}))
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (js/result-passing-body
+                          (objectid-body node)
+                          node
+                          nodes)}))
 
 (comment
   (def objectid-node (first (n/type-nodes "objectid" flows)))
@@ -271,11 +271,11 @@
 
 (defmethod n/node->js "mongodb in"
   [node nodes]
-  (js/fn-src {:name (n/js-fn-name node)
-              :body (js/result-passing-body
-                      (mongodb-in-body node nodes)
-                      node
-                      nodes)}))
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (js/result-passing-body
+                          (mongodb-in-body node nodes)
+                          node
+                          nodes)}))
 
 (comment
   (def mongodb-in-node (first (n/type-nodes "mongodb in" flows)))
@@ -298,11 +298,11 @@
 
 (defmethod n/node->js "mongodb out"
   [node nodes]
-  (js/fn-src {:name (n/js-fn-name node)
-              :body (js/result-passing-body
-                      (mongodb-out-body node nodes)
-                      node
-                      nodes)}))
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (js/result-passing-body
+                          (mongodb-out-body node nodes)
+                          node
+                          nodes)}))
 
 (comment
   (def mongodb-out-node (first (n/type-nodes "mongodb out" flows)))
@@ -344,11 +344,11 @@
 
 (defmethod n/node->js "mongodb-collection"
   [node nodes]
-  (js/fn-src {:name (n/js-fn-name node)
-              :body (js/result-passing-body
-                      (mongodb-collection-body node nodes)
-                      node
-                      nodes)}))
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (js/result-passing-body
+                          (mongodb-collection-body node nodes)
+                          node
+                          nodes)}))
 
 (comment
   (map (juxt :name :collection) (n/type-nodes "mongodb-collection" flows))
@@ -379,8 +379,8 @@
 
 (defmethod n/node->js "status"
   [node nodes]
-  (js/fn-src {:name (n/js-fn-name node)
-              :body (status-body node nodes)}))
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (status-body node nodes)}))
 
 (comment
   (def status-node (first (n/type-nodes "status" flows)))
@@ -430,8 +430,8 @@
 
 (defmethod n/node->js "switch"
   [node nodes]
-  (js/fn-src {:name (n/js-fn-name node)
-              :body (switch-body node nodes)}))
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (switch-body node nodes)}))
 
 (comment
   (def switch-node
@@ -470,11 +470,11 @@
 
 (defmethod n/node->js "template"
   [node nodes]
-  (js/fn-src {:name (n/js-fn-name node)
-              :body (js/result-passing-body
-                      (template-body node)
-                      node
-                      nodes)}))
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (js/result-passing-body
+                          (template-body node)
+                          node
+                          nodes)}))
 
 (comment
   (def template-node (first (n/type-nodes "template" flows)))
@@ -510,9 +510,9 @@
 
 (defmethod n/node->js "inject"
   [node nodes]
-  (js/fn-src {:params []
-              :name (n/js-fn-name node)
-              :body (inject-body node nodes)}))
+  (js/fn-src {::js/params []
+              ::js/name (n/js-fn-name node)
+              ::js/body (inject-body node nodes)}))
 
 (comment
   (println (inject-body (n/node-with-id "5440c81d.695b88" flows) flows))
@@ -562,8 +562,8 @@
 
 (defmethod n/node->js "debug"
   [node _nodes]
-  (js/fn-src {:name (n/js-fn-name node)
-              :body (debug-body node)}))
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (debug-body node)}))
 
 (comment
   (println (n/node->js (n/node-with-id "94f1227c.ba63" flows) flows))

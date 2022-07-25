@@ -59,10 +59,10 @@
 (defn fn-src
   "Generate JavaScript source for function with `name` and `body`, and taking `params`.
 
-      => (fn-src {:name \"foo\", :params ['x], :body \"return x+1;\"})
+      => (fn-src {::name \"foo\", ::params ['x], ::body \"return x+1;\"})
       \"function foo(x) {\n    return x+1;\n}\"
   "
-  [{:keys [name body params]}]
+  [{:keys [::name ::body ::params]}]
   (let [params (or params ['msg])]
     (u/join-lines
       [(format "function %s(%s) {" name (format-values params))
