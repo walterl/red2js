@@ -1,7 +1,6 @@
 (ns walterl.red2js.nodes
   (:require [clojure.set :as set]
             [cheshire.core :as json]
-            [walterl.red2js.nodes :as n]
             [walterl.red2js.loopr :refer [loopr]]))
 
 ;;; Utilities
@@ -77,7 +76,7 @@
   [nodes]
   (loopr [acc {}]
          [node nodes
-          output-id (n/output-node-ids node)]
+          output-id (output-node-ids node)]
          (recur (update acc output-id set/union #{(:id node)}))))
 
 (defn collect-nodes
@@ -112,7 +111,7 @@
 
   (output-inputs (->> (downstream-nodes "c4a1325.c0783d" flows)
                       (into ["c4a1325.c0783d"])
-                      (map #(n/node-with-id % flows))))
+                      (map #(node-with-id % flows))))
 
   (downstream-nodes "22cbd68c.ec6a7a" flows) ; debug "msg"
 
