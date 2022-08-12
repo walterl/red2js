@@ -75,7 +75,7 @@
   ([nodes args]
    (let [lines (mapv #(call-node % (or args ['msg])) nodes)]
      (when (not-empty lines)
-       (u/join-lines (into [""] lines)))))) ; Prefix with empty line
+       (u/join-lines lines)))))
 
 (defn result-passing-body
   "JavaScript source that captures return value of `body` and calls all
