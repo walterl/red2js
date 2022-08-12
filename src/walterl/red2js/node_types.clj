@@ -530,7 +530,7 @@
 (defn- inject-body
   [{repeatt :repeat, :as node} nodes]
   (let [body (u/join-lines
-               [(js/sleep (:onceDelay node))
+               [(js/sleep (u/->double (:onceDelay node)))
                 (inject-msg node)
                 (js/node-calls (n/output-nodes node nodes))])]
     (if (not-empty repeatt)
