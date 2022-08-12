@@ -1,5 +1,6 @@
 (ns walterl.red2js.node-types.common 
   (:require
+    [clojure.string :as str]
     [walterl.red2js.js :as js]
     [walterl.red2js.nodes :as n]
     [walterl.red2js.util :as u]))
@@ -123,4 +124,45 @@
   (println (n/node->js status-node flows))
   (let [status-node (assoc status-node :scope (map :id (vec (take 3 flows))))]
     (println (n/node->js status-node flows)))
+  ,)
+
+;;; Node type: link in
+
+(defmethod n/js-fn-name "link in"
+  [{:keys [id name] :as _node}]
+  (js/identifier ["link_in" name id]))
+
+(defn- link-in-body
+  [{:keys [links] :as node} nodes]
+  (u/join-lines
+    [(format "// Linked from %s" (str/join ", " links))
+     (js/node-calls (n/output-nodes node nodes))]))
+
+(defmethod n/node->js "link in"
+  [node nodes]
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (link-in-body node nodes)}))
+
+(comment
+  (def link-in-node (first (n/type-nodes "link in" flows)))
+  (println (n/node->js link-in-node flows))
+  ,)
+
+;;; Node type: link out
+
+(defmethod n/js-fn-name "link out"
+  [{:keys [id name] :as _node}]
+  (js/identifier ["link_out" name id]))
+
+(defmethod n/node->js "link out"
+  [{:keys [links] :as node} nodes]
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (->> links
+                             (mapv #(n/node-with-id % nodes))
+                             js/node-calls)}))
+
+(comment
+  (def link-out-node (first (n/type-nodes "link out" flows)))
+  (js/node-calls (mapv #(n/node-with-id % flows) (:links link-out-node)))
+  (println (n/node->js link-out-node flows))
   ,)
