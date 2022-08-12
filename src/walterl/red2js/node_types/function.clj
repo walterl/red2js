@@ -92,6 +92,45 @@
        )
   ,)
 
+;;; Node type: change
+
+(defmethod n/js-fn-name "change"
+  [{:keys [id name rules] :as _node}]
+  (let [actions (->> (map :t rules)
+                     (str/join "$"))]
+    (js/identifier ["change" name actions id])))
+
+(defn- change-rule-statement
+  [{:keys [pt p tot to], rule-type :t :as rule}]
+  (condp = rule-type
+    "set" (format "%s.%s = %s.%s;" pt p tot to)
+    ;; "change" support is incomplete: the arguments to '.replace' are assumed
+    ;; to be string values, and not references to other objects.
+    "change" (format "%s.%s = %s.%s.replace(%s, %s);"
+                     pt p ; %s.%s = ...
+                     pt p ; ... = %s.%s.replace...
+                     (js/format-value (:from rule)) (js/format-value to)) ; ...replace(%s, %s)
+    "delete" (format "delete %s.%s;" pt p)
+    "move" (u/join-lines
+             [(format "%s.%s = %s.%s;" tot to pt p)
+              (format "delete %s.%s;" pt p)])))
+
+(defn- change-body
+  [{:keys [rules] :as _node}]
+  (u/join-lines
+    (into (mapv change-rule-statement rules)
+          ["return msg;"])))
+
+(defmethod n/node->js "change"
+  [node nodes]
+  (js/node-fn-src (change-body node) node nodes))
+
+(comment
+  (def change-node (first (n/type-nodes "change" flows)))
+  (def change-node (cheshire.core/parse-string "{ \"id\": \"1b7e8b0b.2c6f95\", \"type\": \"change\", \"z\": \"6ab5d417.e92fac\", \"name\": \"\", \"rules\": [ { \"t\": \"set\", \"p\": \"payload\", \"pt\": \"msg\", \"to\": \"payload.data\", \"tot\": \"msg\" }, { \"t\": \"change\", \"p\": \"payload\", \"pt\": \"msg\", \"from\": \"srch\", \"fromt\": \"str\", \"to\": \"repl\", \"tot\": \"str\" }, { \"t\": \"delete\", \"p\": \"payload\", \"pt\": \"msg\" }, { \"t\": \"move\", \"p\": \"payload\", \"pt\": \"msg\", \"to\": \"to_payload\", \"tot\": \"msg\" } ], \"action\": \"\", \"property\": \"\", \"from\": \"\", \"to\": \"\", \"reg\": false, \"x\": 400, \"y\": 880, \"wires\": [ [ \"32ce3710.8f8ba8\" ] ] }" true))
+  (println (n/node->js change-node flows))
+  ,)
+
 ;;; Node type: template
 
 (defmethod n/js-fn-name "template"
