@@ -13,8 +13,7 @@
 
 (defmethod n/node->js "function"
   [{:keys [func] :as node} nodes]
-  (js/fn-src {::js/name (n/js-fn-name node)
-              ::js/body (js/result-passing-body func node nodes)}))
+  (js/node-fn-src func node nodes))
 
 (comment
   (def flows walterl.red2js/flows)
@@ -132,11 +131,7 @@
 
 (defmethod n/node->js "template"
   [node nodes]
-  (js/fn-src {::js/name (n/js-fn-name node)
-              ::js/body (js/result-passing-body
-                          (template-body node)
-                          node
-                          nodes)}))
+  (js/node-fn-src (template-body node) node nodes))
 
 (comment
   (def template-node (first (n/type-nodes "template" flows)))
@@ -165,11 +160,7 @@
 
 (defmethod n/node->js "delay"
   [node nodes]
-  (js/fn-src {::js/name (n/js-fn-name node)
-              ::js/body (js/result-passing-body
-                          (delay-body node)
-                          node
-                          nodes)}))
+  (js/node-fn-src (delay-body node) node nodes))
 
 (comment
   (def delay-node (first (n/type-nodes "delay" flows)))

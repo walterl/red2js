@@ -61,44 +61,6 @@
   [args]
   (str/join ", " (map format-value args)))
 
-(defn fn-src
-  "Generate JavaScript source for function with `name` and `body`, and taking `params`.
-
-      => (fn-src {::name \"foo\", ::params ['x], ::body \"return x+1;\"})
-      \"function foo(x) {\n    return x+1;\n}\"
-  "
-  [{:keys [::name ::body ::params]}]
-  (let [params (or params ['msg])]
-    (u/join-lines
-      [(format "function %s(%s) {" name (format-values params))
-       (indent body)
-       "}"])))
-
-(defn repeated-body
-  "Repeat `body` `n` times."
-  [body n]
-  (u/join-lines
-    [(format "for (i=0; i<%s; i++) {" n)
-     (indent body)
-     "}"]))
-
-(defn sleep
-  "Call sleep, as defined at https://devtrium.com/posts/how-sleep-javascript"
-  [secs]
-  (when (some? secs)
-    (format "await sleep(%s);" (* 1000 secs))))
-
-(defn fetch
-  "Call fetch to make `method` HTTP request to `url`. If `ret` is \"obj\", the
-  result is parsed as JSON."
-  [method url ret]
-  (u/join-lines
-    [(format "await fetch(%s, {" (format-value url))
-     (indent (format "method: %s," (format-value method)))
-     (indent "headers: msg.headers,")
-     (indent "body: msg.payload && JSON.stringify(msg.payload),")
-     (str "})" (when (= "obj" ret) ".json()") ";")]))
-
 (defn call-node
   "Call to function corresponding to node with ID `node-id`, taking `args`."
   [node args]
@@ -124,6 +86,50 @@
       (indent body)
       "})();"
       (node-calls (n/output-nodes node nodes) ['res])])))
+
+(defn fn-src
+  "Generate JavaScript source for function with `name` and `body`, and taking `params`.
+
+      => (fn-src {::name \"foo\", ::params ['x], ::body \"return x+1;\"})
+      \"function foo(x) {\n    return x+1;\n}\"
+  "
+  [{:keys [::name ::body ::params]}]
+  (let [params (or params ['msg])]
+    (u/join-lines
+      [(format "function %s(%s) {" name (format-values params))
+       (indent body)
+       "}"])))
+
+(defn node-fn-src
+  "Convenience fn for common `fn-src` usage."
+  [body node nodes]
+  (fn-src {::name (n/js-fn-name node)
+           ::body (result-passing-body body node nodes)}))
+
+(defn repeated-body
+  "Repeat `body` `n` times."
+  [body n]
+  (u/join-lines
+    [(format "for (i=0; i<%s; i++) {" n)
+     (indent body)
+     "}"]))
+
+(defn sleep
+  "Call sleep, as defined at https://devtrium.com/posts/how-sleep-javascript"
+  [secs]
+  (when (some? secs)
+    (format "await sleep(%s);" (* 1000 secs))))
+
+(defn fetch
+  "Call fetch to make `method` HTTP request to `url`. If `ret` is \"obj\", the
+  result is parsed as JSON."
+  [method url ret]
+  (u/join-lines
+    [(format "await fetch(%s, {" (format-value url))
+     (indent (format "method: %s," (format-value method)))
+     (indent "headers: msg.headers,")
+     (indent "body: msg.payload && JSON.stringify(msg.payload),")
+     (str "})" (when (= "obj" ret) ".json()") ";")]))
 
 (comment
   (def flows walterl.red2js/flows)

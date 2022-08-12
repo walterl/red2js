@@ -45,11 +45,7 @@
 
 (defmethod n/node->js "amqp-in"
   [node nodes]
-  (js/fn-src {::js/name (n/js-fn-name node)
-              ::js/body (js/result-passing-body
-                          (amqp-in-body node nodes)
-                          node
-                          nodes)}))
+  (js/node-fn-src (amqp-in-body node nodes) node nodes))
 
 (comment
   (println (n/node->js (n/node-with-id "a8c126e4.90de28" flows) flows))
@@ -104,11 +100,7 @@
 
 (defmethod n/node->js "objectid"
   [node nodes]
-  (js/fn-src {::js/name (n/js-fn-name node)
-              ::js/body (js/result-passing-body
-                          (objectid-body node)
-                          node
-                          nodes)}))
+  (js/node-fn-src (objectid-body node) node nodes))
 
 (comment
   (def objectid-node (first (n/type-nodes "objectid" flows)))
@@ -147,11 +139,7 @@
 
 (defmethod n/node->js "mongodb in"
   [node nodes]
-  (js/fn-src {::js/name (n/js-fn-name node)
-              ::js/body (js/result-passing-body
-                          (mongodb-in-body node nodes)
-                          node
-                          nodes)}))
+  (js/node-fn-src (mongodb-in-body node nodes) node nodes))
 
 (comment
   (def mongodb-in-node (first (n/type-nodes "mongodb in" flows)))
@@ -174,11 +162,7 @@
 
 (defmethod n/node->js "mongodb out"
   [node nodes]
-  (js/fn-src {::js/name (n/js-fn-name node)
-              ::js/body (js/result-passing-body
-                          (mongodb-out-body node nodes)
-                          node
-                          nodes)}))
+  (js/node-fn-src (mongodb-out-body node nodes) node nodes))
 
 (comment
   (def mongodb-out-node (first (n/type-nodes "mongodb out" flows)))
@@ -220,11 +204,7 @@
 
 (defmethod n/node->js "mongodb-collection"
   [node nodes]
-  (js/fn-src {::js/name (n/js-fn-name node)
-              ::js/body (js/result-passing-body
-                          (mongodb-collection-body node nodes)
-                          node
-                          nodes)}))
+  (js/node-fn-src (mongodb-collection-body node nodes) node nodes))
 
 (comment
   (map (juxt :name :collection) (n/type-nodes "mongodb-collection" flows))

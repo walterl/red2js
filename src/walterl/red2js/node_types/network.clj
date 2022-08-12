@@ -19,11 +19,7 @@
 
 (defmethod n/node->js "http in"
   [node nodes]
-  (js/fn-src {::js/name (n/js-fn-name node)
-              ::js/body (js/result-passing-body
-                          (http-in-body node)
-                          node
-                          nodes)}))
+  (js/node-fn-src (http-in-body node) node nodes))
 
 (comment
   (def flows walterl.red2js/flows)
@@ -72,11 +68,7 @@
 
 (defmethod n/node->js "http request"
   [node nodes]
-  (js/fn-src {::js/name (n/js-fn-name node)
-              ::js/body (js/result-passing-body
-                          (http-request-body node)
-                          node
-                          nodes)}))
+  (js/node-fn-src (http-request-body node) node nodes))
 
 (comment
   (def req-node (first (n/type-nodes "http request" flows)))
