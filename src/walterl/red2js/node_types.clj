@@ -510,6 +510,36 @@
   (println (n/node->js template-node flows))
   ,)
 
+;;; Node type: delay
+
+(defmethod n/js-fn-name "delay"
+  [{:keys [id name] :as _node}]
+  (js/identifier ["delay" name id]))
+
+(defn- delay-body
+  [node]
+  (u/join-lines
+    [(format "delay(%s);"
+             (n/config-json
+               (select-keys node
+                            [:pauseType :timeout :timeoutUnits :rate
+                             :nbRateUnits :rateUnits :randomFirst :randomLast
+                             :randomUnits :drop])
+               {:pretty true}))
+     "return msg;"]))
+
+(defmethod n/node->js "delay"
+  [node nodes]
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (js/result-passing-body
+                          (delay-body node)
+                          node
+                          nodes)}))
+
+(comment
+  (def delay-node (first (n/type-nodes "delay" flows)))
+  (println (n/node->js delay-node flows))
+  ,)
 
 ;;; Node type: inject
 
