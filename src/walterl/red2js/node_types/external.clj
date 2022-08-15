@@ -107,6 +107,16 @@
   (println (n/node->js objectid-node flows))
   ,)
 
+;;; Node type: mongodb-objectid
+;; Same as objectid node above
+(defmethod n/js-fn-name "mongodb-objectid"
+  [node]
+  (n/js-fn-name (assoc node :type "objectid")))
+
+(defmethod n/node->js "mongodb-objectid"
+  [node nodes]
+  (n/node->js (assoc node :type "objectid") nodes))
+
 ;;; Node type: mongodb
 
 (defmethod n/js-fn-name "mongodb"
