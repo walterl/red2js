@@ -226,3 +226,29 @@
   (noop-body noop-node flows)
   (println (n/node->js noop-node flows))
   ,)
+
+;;; Node type: rbe
+
+(defmethod n/js-fn-name "rbe"
+  [{:keys [id inout name] :as _node}]
+  (js/identifier ["rbe" name inout id]))
+
+(defn- rbe-body
+  [{:keys [property] :as node}]
+  (u/join-lines
+    ["// NOTE: THIS IS NOT WHAT AN \"rbe\" NODE DOES!"
+     (format "msg = rbe(msg.%s, %s)"
+             property
+             (js/format-value (select-keys node [:func :gap :start :inout])))
+     "return msg;"]))
+
+(defmethod n/node->js "rbe"
+  [node nodes]
+  (js/node-fn-src (rbe-body node) node nodes))
+
+(comment
+  (def rbe-node (first (n/type-nodes "rbe" flows)))
+  (def rbe-node (cheshire.core/parse-string "{ \"id\": \"4f007c16.47fd04\", \"type\": \"rbe\", \"z\": \"3dc9423e.dd04ce\", \"name\": \"\", \"func\": \"rbe\", \"gap\": \"\", \"start\": \"\", \"inout\": \"out\", \"property\": \"payload.arbitrage\", \"x\": 510, \"y\": 260, \"wires\": [ [ \"4c92497a.8db5b8\" ] ] }"
+                                            keyword))
+  (println (n/node->js rbe-node flows))
+  ,)
