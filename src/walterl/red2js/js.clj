@@ -19,6 +19,7 @@
       (str/replace " " "_")
       (str/replace "-" "_")
       (str/replace "|" "_")
+      (str/replace "/" "_")
       (str/replace "." "$")
       (str/replace "#" "$")))
 
