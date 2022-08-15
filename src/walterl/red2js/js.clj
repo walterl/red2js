@@ -55,12 +55,18 @@
   [x]
   (cond
     (string? x) (pr-str x)
+    (map? x) (n/config-json x)
     :else (str x)))
 
 (defn format-values
   "Format args and join with commas."
   [args]
   (str/join ", " (map format-value args)))
+
+(defn dump-obj-comment
+  "Dump object into a JavaScript comment."
+  [obj]
+  (str "// " (format-value obj)))
 
 (defn call-node
   "Call to function corresponding to node with ID `node-id`, taking `args`."
