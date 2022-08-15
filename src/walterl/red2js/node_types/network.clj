@@ -80,3 +80,87 @@
        #_(filter #(not= "use" (:method %)))
        (map n/js-fn-name))
   ,)
+
+;;; Node type: websocket-client
+
+(defmethod n/js-fn-name "websocket-client"
+  [{:keys [id] :as _node}]
+  (js/identifier ["websocket-client" id]))
+
+(defmethod n/node->js "websocket-client"
+  [{:keys [path tls] :as node} _nodes]
+  (format "const %s = new WebSocket(%s, %s);"
+          (n/js-fn-name node)
+          (js/format-value path)
+          (js/format-value tls)))
+
+(comment
+  (def websocket-client-node (first (n/type-nodes "websocket-client" flows)))
+  (println (n/node->js websocket-client-node flows))
+  ,)
+
+;;; Node type: websocket-listener
+
+(defmethod n/js-fn-name "websocket-listener"
+  [{:keys [id] :as _node}]
+  (js/identifier ["websocket-listener" id]))
+
+(defmethod n/node->js "websocket-listener"
+  [{:keys [path] :as node} _nodes]
+  (format "const %s = new WebSocketServer(%s);"
+          (n/js-fn-name node)
+          (js/format-value path)))
+
+(comment
+  (def websocket-listener-node (cheshire.core/parse-string "{ \"id\": \"312b03e0.93850c\", \"type\": \"websocket-listener\", \"z\": \"\", \"path\": \"wss://ws.example.com:9443\", \"wholemsg\": \"false\" }"
+                                                           keyword))
+  (println (n/node->js websocket-listener-node flows))
+  ,)
+
+;;; Node type: websocket in
+
+(defmethod n/js-fn-name "websocket in"
+  [{:keys [id client name server] :as _node}]
+  (let [client-server (cond client "client", server "server")]
+    (js/identifier ["websocket in" name client-server id])))
+
+(defn- websocket-in-body
+  [{:keys [client server] :as node} nodes]
+  (u/join-lines
+    [(format "%s.onmessage((event) => {"
+             (n/js-fn-name (n/node-with-id (or client server) nodes)))
+     (js/indent (js/node-calls (n/output-nodes node nodes) ['event.data]))
+     "});"]))
+
+(defmethod n/node->js "websocket in"
+  [node nodes]
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/params []
+              ::js/body (websocket-in-body node nodes)}))
+
+(comment
+  (def websocket-in-node (first (n/type-nodes "websocket in" flows)))
+  (println (n/node->js websocket-in-node flows))
+  ,)
+
+;;; Node type: websocket out
+
+(defmethod n/js-fn-name "websocket out"
+  [{:keys [id client name server] :as _node}]
+  (let [client-server (cond client "client", server "server")]
+    (js/identifier ["websocket out" name client-server id])))
+
+(defn- websocket-out-body
+  [{:keys [client server] :as _node} nodes]
+  (format "%s.send(msg.payload);"
+          (n/js-fn-name (n/node-with-id (or client server) nodes))))
+
+(defmethod n/node->js "websocket out"
+  [node nodes]
+  (js/fn-src {::js/name (n/js-fn-name node)
+              ::js/body (websocket-out-body node nodes)}))
+
+(comment
+  (def websocket-out-node (first (n/type-nodes "websocket out" flows)))
+  (println (n/node->js websocket-out-node flows))
+  ,)
