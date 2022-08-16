@@ -166,3 +166,12 @@
   (js/node-calls (mapv #(n/node-with-id % flows) (:links link-out-node)))
   (println (n/node->js link-out-node flows))
   ,)
+
+;;; Node type: comment
+
+(defmethod n/node->js "comment"
+  [{:keys [name info]} _nodes]
+  (u/join-lines
+    [(str "/// COMMENT: " name)
+     (when (not-empty info)
+       (js/comment-lines info))]))
