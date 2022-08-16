@@ -39,8 +39,8 @@
 (defn- convert-nodes-on-tab
   [tab-node nodes]
   (-> (n/nodes-on-tab tab-node nodes)
-      (n/sort-comments)
-      (->> (into [tab-node]))
+      (->> (sort-by (juxt :y :x))
+           (into [tab-node]))
       (convert-nodes nodes)))
 
 (defn- convert-flows
