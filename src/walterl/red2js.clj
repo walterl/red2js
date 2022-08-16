@@ -41,14 +41,6 @@
   (convert-nodes (into [tab-node]
                        (filter #(= tab-node-id (:z %)) nodes))))
 
-(defn- untabbed-nodes
-  [nodes]
-  (let [tab-nodes (n/type-nodes "tab" nodes)
-        tab-node-ids (set (map :id tab-nodes))
-        tabbed-nodes (filter #(or (tab-node-ids (:id %)) (tab-node-ids (:z %))) nodes)
-        tabbed-node-ids (set (map :id tabbed-nodes))]
-    (remove (comp tabbed-node-ids :id) nodes)))
-
 (defn- convert-flows
   [nodes]
   (str/join "\n\n"

@@ -146,3 +146,14 @@
 
   (filter (fn [[_ v]] (nil? v)) (all-connections flows))
   ,)
+
+(defn untabbed-nodes
+  "Nodes that don't represent tabs, and aren't on any tab.
+
+  Normally what's left are configuration nodes."
+  [nodes]
+  (let [tab-nodes (type-nodes "tab" nodes)
+        tab-node-ids (set (map :id tab-nodes))
+        tabbed-nodes (filter #(or (tab-node-ids (:id %)) (tab-node-ids (:z %))) nodes)
+        tabbed-node-ids (set (map :id tabbed-nodes))]
+    (remove (comp tabbed-node-ids :id) nodes)))
