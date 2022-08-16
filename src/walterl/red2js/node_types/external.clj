@@ -34,12 +34,12 @@
   [{:keys [broker] :as node} nodes]
   (u/join-lines
     ["return amqp_in({"
-     (js/indent (format "exchangeRoutingKey: %s," (pr-str (:exchangeRoutingKey node))))
-     (js/indent (format "exchangeName: %s," (pr-str (:exchangeName node))))
-     (js/indent (format "exchangeType: %s," (pr-str (:exchangeType node))))
-     (js/indent (format "exchangeDurable: %s," (:exchangeDurable node)))
-     (js/indent (format "noAck: %s," (:noAck node)))
-     (js/indent (format "queueName %s," (:queueName node)))
+     (js/indent (format "exchangeRoutingKey: %s," (js/format-value (:exchangeRoutingKey node))))
+     (js/indent (format "exchangeName: %s," (js/format-value (:exchangeName node))))
+     (js/indent (format "exchangeType: %s," (js/format-value (:exchangeType node))))
+     (js/indent (format "exchangeDurable: %s," (js/format-value (:exchangeDurable node))))
+     (js/indent (format "noAck: %s," (js/format-value (:noAck node))))
+     (js/indent (format "queueName: %s," (js/format-value (:queueName node))))
      (js/indent (format "broker: %s," (n/js-fn-name (n/node-with-id broker nodes))))
      "});"]))
 
