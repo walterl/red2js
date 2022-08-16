@@ -21,6 +21,7 @@
       (str/replace "|" "_")
       (str/replace "/" "_")
       (str/replace "." "$")
+      (str/replace ":" "$")
       (str/replace "#" "$")))
 
 (defn identifier
