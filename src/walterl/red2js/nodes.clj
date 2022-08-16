@@ -43,7 +43,8 @@
 (defn node-with-id
   "Returns node in `nodes` with `id`."
   [id nodes]
-  (first (filter #(= id (:id %)) nodes)))
+  (when (not-empty id)
+    (first (filter #(= id (:id %)) nodes))))
 
 (defn output-node-ids
   "Returns IDs of `node`'s output nodes."
