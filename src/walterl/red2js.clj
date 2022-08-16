@@ -29,23 +29,25 @@
          ::js-comment (metadata-js-comment node)))
 
 (defn- convert-nodes
-  [nodes]
+  [nodes all-nodes]
   (->> nodes
-       (map #(annotate-node % nodes))
+       (map #(annotate-node % all-nodes))
        (map ::js)
        (remove nil?)
        (str/join "\n\n")))
 
-(defn- convert-tab-nodes
-  [{tab-node-id :id, :as tab-node} nodes]
-  (convert-nodes (into [tab-node]
-                       (filter #(= tab-node-id (:z %)) nodes))))
+(defn- convert-nodes-on-tab
+  [tab-node nodes]
+  (-> (n/nodes-on-tab tab-node nodes)
+      (n/sort-comments)
+      (->> (into [tab-node]))
+      (convert-nodes nodes)))
 
 (defn- convert-flows
   [nodes]
   (str/join "\n\n"
-            (into [(convert-nodes (untabbed-nodes nodes))]
-                  (map #(convert-tab-nodes % nodes) (n/type-nodes "tab" nodes)))))
+            (into [(convert-nodes (n/untabbed-nodes nodes) nodes)]
+                  (map #(convert-nodes-on-tab % nodes) (n/type-nodes "tab" nodes)))))
 
 (defn convert-flows-file
   "Callable entry point to the application."
@@ -64,7 +66,7 @@
 
   (->> flows
        #_(n/type-nodes "function")
-       (convert-nodes))
+       (convert-nodes flows))
 
   (->> flows
        (n/type-nodes "function")
@@ -74,7 +76,7 @@
   (->> flows
        (n/type-nodes "http request")
        (take-last 2)
-       (convert-nodes)
+       (convert-nodes flows)
        (println))
 
   (->> flows
@@ -90,6 +92,6 @@
        (into ["c4a1325.c0783d"])
        (reverse)
        (map #(n/node-with-id % flows))
-       (convert-nodes)
+       (convert-nodes flows)
        (println))
   ,)
