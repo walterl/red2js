@@ -1,14 +1,22 @@
-# walterl/red2js
+# red2js
 
-Convert a [Node-RED](https://nodered.org/) flow data to JavaScript pseudo code.
+Convert [Node-RED](https://nodered.org/) flow data to JavaScript pseudo code.
 
 **Generated code is NOT executable!** red2js output is intended to aid in
 understanding complex Node-RED flows, not to generate drop-in replacements for
 Node-RED.
 
-## Installation
+## Limitations
 
-Download from https://github.com/walterl/red2js
+The generated JavaScript is incomplete in a number of ways, including:
+
+- Only converts function nodes' _On Message_ functionality.
+- Many node types' conversion does not model all functionality support by the
+  node type. See the implementation of `rbe` nodes, as an example.
+- It doesn't handle [multiple outputs](https://nodered.org/docs/user-guide/writing-functions#multiple-outputs)/`node.send()`.
+
+There are likely other, significant ways in which generated code is incomplete,
+or even incorrect.
 
 ## Usage
 
