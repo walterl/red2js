@@ -28,4 +28,4 @@ Run that uberjar:
 
 Copyright © 2022 Walter
 
-Distributed under the [GNU General Public License version 3](./LICENSE.md).
+Distributed under the [Eclipse Public License version 1.0](./LICENSE).
