@@ -94,7 +94,9 @@
      ["const res = (function() {"
       (indent body)
       "})();"
-      (node-calls (n/output-nodes node nodes) ['res])])))
+      "if (res !== null && res !== undefined) {"
+      (indent (node-calls (n/output-nodes node nodes) ['res]))
+      "}"])))
 
 (defn fn-src
   "Generate JavaScript source for function with `name` and `body`, and taking `params`.
