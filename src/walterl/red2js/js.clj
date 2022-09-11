@@ -22,7 +22,8 @@
       (str/replace "/" "_")
       (str/replace "." "$")
       (str/replace ":" "$")
-      (str/replace "#" "$")))
+      (str/replace "#" "$")
+      (str/replace "!" "$")))
 
 (defn identifier
   "Creates valid JavaScript identifier from non-empty `parts`."
